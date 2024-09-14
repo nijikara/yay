@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+
+<style>
+  .radiobutton {
+    display: inline-block;
+  }
+  #label-radio {
+    background-color: skyblue;
+    padding: 10px 20px;
+  }
+  .radiobutton:checked + #label-radio {
+    background-color: pink;
+  }
+  /* ボタンCSS */
+  .btn--orange,
+  button.btn--orange {
+    color: #fff;
+    background-color: #eb6100;
+  }
+  .btn--orange:hover,
+  button.btn--orange:hover {
+    background: #f56500;
+  }
+
+</style>
+
+<body>
+  <div class="member">
+    <!-- <form method="GET" action="/comment">
+      <label for="name" class="col-md-2 control-label">動画URL</label>
+      <input type="text" class="form-control col-md-3"  name="video-id" size="40" >
+      <button type="submit">コメント出力</button>
+    </form> -->
+    <form method="GET" action="/scraping">
+      <label for="name" class="col-md-2 control-label">ニックネーム</label>
+      <input type="text" class="form-control col-md-3"  name="nickname" size="40" >
+      <label for="name" class="col-md-2 control-label">生い立ち</label>
+      <input type="text" class="form-control col-md-3"  name="biography" size="40"  value="大阪">
+      <label for="name" class="col-md-2 control-label">from</label>
+      <input type="date" class="form-control col-md-2"  name="from_timestamp" ></input>
+      <br>
+      <label for="name" class="col-md-2 control-label">取得件数</label>
+      <input type="number" class="form-control col-md-2" name="number" size="40" value="10">
+      <div class="form-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="comment-checkbox" name="comments" value="true">
+          <label class="form-check-label" for="comment-checkbox">コメント有り</label>
+        </div>
+      </div>
+      <button type="submit">出力</button>
+  </div>
+</body>
+
+</html>

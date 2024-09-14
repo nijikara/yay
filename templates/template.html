@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8" />
+<title>search_user</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/css/theme.default.min.css">
+<style>
+#fav-table th {
+    background-color:pink;
+}
+.text-content,
+.comment-table {
+    max-height: 100px; /* Adjust the maximum height as needed */
+    overflow-y: auto;
+}
+.table td {
+    max-width: 420px;
+}
+</style>
+<script>
+    $(document).ready(function() {
+        var exp = /(\https:\/\/www.youtube.com\/(watch|shorts)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        $('body').html($('body').html().replace(exp,"<a href='$1' target='_blank'><img height='20' src='images/logo.svg'></a>"));
+
+        $('#fav-table').tablesorter();
+        $('.text-content').each(function(){
+            var exp_hash = /#+([a-zA-Z0-9亜-熙ぁ-んァ-ヶー-龥朗-鶴.\-_]+)/g;
+            var exp = /(\https:\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+            var txt = $(this).text();
+            txt = txt.replace(exp,"<a href='$1' target='_blank'>$1</a>")
+            txt = txt.replace(exp_hash,"<a href='https://www.youtube.com/hashtag/$1' target='_blank'>#$1</a>")
+            $(this).html(txt);
+        });
+    });
+</script>
+</head>
+<body>
+<div class="card-body">
+    <div>検索結果: {{ sorce | length }}件</div> <!-- 件数を表示する部分 -->
+    <button id="followAllButton"  data-source = '{{user_ids}}'>全員フォロー</button>
+    <table id="fav-table" class="table table-bordered">
+        <thead>
+            <tr>
+                {% for info in sorce[0] %}
+                {% if info == 'id' or info == 'url' %}
+                {% else %}
+                <th>{{info}}</th>
+                {% endif %}
+                {% endfor %}
+                <th>操作</th> <!-- 新しく操作列を追加 -->
+            </tr></thead>
+            {% for dict in sorce %}
+            <tr>
+                {% for info in dict %}
+                {% if info == 'id' or info == 'url' %}
+                {% else %}
+                <td>
+                    {% if 'thumbnail' in info %}
+                        <a href="{{dict[info]}}" target="_blank">
+                            <img src="{{dict[info]}}" height="100">
+                        </a>
+                    {% elif info =='nickname' %}
+                        <a href="{{dict['url']}}" target="_blank">{{dict['nickname']}}</a>
+                    {% elif info =='video_url' %}
+                        {{dict[info] | safe}}
+                    {% else %}
+                        <div class="text-content">{{dict[info] | safe}}</div>
+                    {% endif %}
+                </td>
+                {% endif %}
+                {% endfor %}
+                <td>
+                    <form action="/follow_user" method="post">
+                        <input type="hidden" name="user_id" value="{{ dict['id'] }}">
+                        <a href="/follow_user?user_id={{ dict['id'] }}" class="btn btn-primary">Follow</a>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+    </table>
+    </div>
+</body>
+<script>
+    document.getElementById("followAllButton").addEventListener("click", function() {
+        // データ属性から配列を取得
+        const dataSource = this.getAttribute('data-source');
+        // JSON文字列をJavaScriptの配列に変換
+        const userIds = JSON.parse(dataSource);
+        // IDリストをサーバーに送信
+        $.ajax({
+            url: "/follow_users",  // サーバー側のエンドポイント
+            type: "POST",
+            contentType: "application/json",  // JSON形式で送信
+            data: JSON.stringify(userIds),  // JSON化されたIDリスト
+            success: function(response) {
+                alert("全フォローが完了しました！");
+            },
+            error: function() {
+                alert("フォローに失敗しました");
+            }
+        });
+    });
+
+</script>
+</html>
